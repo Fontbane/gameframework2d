@@ -18,6 +18,11 @@ typedef struct pointu8_s {
 	Uint8 y;
 }PointU8;
 
+typedef struct points8_s {
+	Sint8 x;
+	Sint8 y;
+}PointS8;
+
 /*The data stored for each tile in a tileset.*/
 typedef struct tile_s {
 	Uint16 tileID;		/*Frame of the tileset containing the tile*/
