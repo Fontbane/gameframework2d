@@ -3,11 +3,6 @@
 
 #include "gf2d_tile.h"
 
-#define DIR_NORTH	=	0
-#define DIR_WEST	=	1
-#define DIR_SOUTH	=	2
-#define DIR_EAST	=	3
-
 /*Defines a connection to another map*/
 typedef struct mapconnection_s {
 	Uint16 mapID;		/*Map connected to*/
@@ -20,40 +15,62 @@ typedef struct mapconnection_s {
 
 typedef struct mapdata_s {
 	Uint16 mapID;
+
+	//Flags
+	Uint16 flags : 13;
+	Uint16 showName : 1; //Whether name should be displayed upon entering map
+	Uint16 indoors : 1;
+	Uint8 _inUse:1;		//this shouldn't be here but it is lol
+
 	Uint8 width;
 	Uint8 height;
-	Uint32 flags;
+
 	MapConnection connections[MAX_MAP_CONNECTIONS];
 }MapConfigData;
 
-typedef struct mapstrings_s {
-	TextWord name;			//Name shown to player
-	TextWord internalName;	//Name used for file path
-}MapStrings;
-
 typedef struct map_s {
 	MapConfigData info;
-	MapStrings* str;
+	TextWord name;
+	TextWord internalName;
+	Tileset* tileset;
 	TilemapTile* tilemap;	/*Pointer to first tile in tilemap*/
-	List* chunks;
+	Uint16* layer2;
+	SDL_Surface* drawbuff;
 }Map;
 
 typedef struct chunk_s {
 	Map* map;
-	TilemapTileActive* tiles;
-	PointU8 boundsMin, boundsMax;	/*Position of top left and bottom right tiles within the map*/
+	TilemapTileActive tiles[256];
+	Uint16 layer2[256];
+	Uint8 entMatrix[256];
+	PointU8 boundsMax;	/*Position of top left and bottom right tiles within the map*/
+	Uint16 firstEnt;
+	Uint8 id;
 	List* ents;
 }Chunk;
 
-#define MAX_MAPS	SDL_UINT16_MAX
+#define MAX_MAP_SIZE	SDL_MAX_UINT8
+#define MAX_MAPS	SDL_MAX_UINT16
+
+#define CHUNK_MAX_ENTS	64
+
+#include "gf2t_entity.h"
 
 void gf2t_map_manager_init();
 Map* gf2t_map_new();
-void gf2t_map_load(Map* map, Uint16 mapID, Sint8 offset);
+void gf2t_map_load(Map* map, char* internalName, Sint8 offset);
 void gf2t_map_free(Map* map);
 
+void gf2t_map_draw_to_buffer(Map* map);
+void gf2t_map_update(Map* map);
+
 Chunk* gf2t_chunk_new(Map* map, PointU8 boundsMin, PointU8 boundsMax);
+void gf2t_chunk_add_ent(Chunk* chunk, Entity* ent);
 void gf2t_clear_chunk_entities(Chunk* chunk);
 void gf2t_chunk_free(Chunk* chunk);
+
+TilemapTileActive* gf2t_get_tile_at(Chunk* chunk, PointU8 pos);
+
+void gf2t_chunk_draw_all(Chunk* chunk);
 
 #endif

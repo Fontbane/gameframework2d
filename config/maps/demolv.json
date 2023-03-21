@@ -1,0 +1,16 @@
+{
+    "internalName":"demolv",
+    "tileset":"demotiles.json",
+    "width":48,
+    "height":48,
+    "showName":true,
+    "indoors":false,
+
+    "connections":[
+        {
+            "map_id":"demoConnection",
+            "direction":1,
+            "offset":-2
+        }
+    ]
+}
